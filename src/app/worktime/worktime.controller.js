@@ -31,7 +31,7 @@ export class Worktime {
 			return ServerResponse.json(res, {
 				success: true,
 				message: 'success',
-				body: { info: records, token },
+				body: { info: records },
 			});
 		});
 	};
