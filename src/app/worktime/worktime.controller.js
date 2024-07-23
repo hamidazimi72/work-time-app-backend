@@ -19,7 +19,7 @@ export class Worktime {
 			});
 
 		FS.readFilePromise(__dirname_db).then(({ data, err }) => {
-			const records = data ? JSON.parse(data) : [];
+			const records = (data ? JSON.parse(data) : []).filter((item) => item.user == token);
 
 			if (err)
 				return ServerResponse.json(res, {
@@ -48,9 +48,9 @@ export class Worktime {
 			});
 
 		const [arrivalTime, departureTime, isVacation] = [
-			req?.query?.arrivalTime,
-			req?.query?.departureTime,
-			req?.query?.isVacation,
+			req?.body?.arrivalTime,
+			req?.body?.departureTime,
+			req?.body?.isVacation,
 		];
 
 		if (!arrivalTime || isVacation === undefined)
@@ -60,24 +60,30 @@ export class Worktime {
 				body: { info: null },
 			});
 
-		// FS.readFilePromise(__dirname_db).then(({ data, err }) => {
-		// 	const records = data ? JSON.parse(data) : [];
+		const records = JSON.parse(FS.readFileSync(__dirname_db).data || '[]');
 
-		// 	if (err)
-		// 		return ServerResponse.json(res, {
-		// 			success: false,
-		// 			message: 'internal error',
-		// 			body: { info: [] },
-		// 		});
+		const record = {
+			id: Date.now(),
+			user: token,
+			arrivalTime: arrivalTime ?? null,
+			departureTime: departureTime ?? null,
+			isVacation: isVacation ?? null,
+		};
 
-		// 	return ServerResponse.json(res, {
-		// 		success: true,
-		// 		message: 'success',
-		// 		body: { info: records, token },
-		// 	});
-		// });
+		const { data, err } = FS.writeFileSync(__dirname_db, JSON.stringify([...records, record]));
 
-		return ServerResponse.json(res, { success: true, message: 'success', body: { id: -1 } });
+		if (err)
+			return ServerResponse.json(res, {
+				success: false,
+				message: 'can not save',
+				body: { info: null },
+			});
+
+		return ServerResponse.json(res, {
+			success: true,
+			message: 'success',
+			body: { info: record },
+		});
 	};
 
 	static edit = async (req, res, next) => {
