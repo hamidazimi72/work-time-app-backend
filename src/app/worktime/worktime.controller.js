@@ -91,6 +91,51 @@ export class Worktime {
 	};
 
 	static delete = async (req, res, next) => {
-		return ServerResponse.json(res, { success: true, message: 'success', body: null });
+		//
+		const token = req?.headers?.token || '';
+		const id = req?.params?.id || '';
+
+		if (!token)
+			return ServerResponse.json(res, {
+				success: false,
+				message: 'user not found',
+				body: { info: null },
+			});
+
+		if (!id)
+			return ServerResponse.json(res, {
+				success: false,
+				message: 'id not valid',
+				body: { info: null },
+			});
+
+		const records = JSON.parse(FS.readFileSync(__dirname_db).data || '[]');
+
+		const recordIndex = records.findIndex((item) => item.id == id && item.user == token);
+
+		if (recordIndex < 0)
+			return ServerResponse.json(res, {
+				success: false,
+				message: 'item not found',
+				body: { info: null },
+			});
+
+		const { data, err } = FS.writeFileSync(
+			__dirname_db,
+			JSON.stringify(records.filter((item, i) => i !== recordIndex))
+		);
+
+		if (err)
+			return ServerResponse.json(res, {
+				success: false,
+				message: 'can not delete',
+				body: { info: null },
+			});
+
+		return ServerResponse.json(res, {
+			success: true,
+			message: 'success',
+			body: { info: records?.[recordIndex] || null },
+		});
 	};
 }
