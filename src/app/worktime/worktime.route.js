@@ -1,13 +1,12 @@
 import express from 'express';
 
-import { User } from './user.controller.js';
+import { Worktime } from './worktime.controller.js';
 
 const router = express.Router();
 
-router.get('/v1/users', User.search);
-router.get('/v1/users/:id', User.get);
-router.post('/v1/users', User.save);
-router.put('/v1/users', User.edit);
-router.delete('/v1/users', User.delete);
+router.get('/v1/worktimes', Worktime.search);
+router.post('/v1/worktimes', Worktime.save);
+router.put('/v1/worktimes', Worktime.edit);
+router.delete('/v1/worktimes', Worktime.delete);
 
 export default router;
