@@ -91,6 +91,7 @@ export class Worktime {
 		};
 
 		const { data, err } = FS.writeFileSync(__dirname_db, JSON.stringify([...records, record]));
+		console.log(err);
 
 		if (err)
 			return ServerResponse.json(res, {
