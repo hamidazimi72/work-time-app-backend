@@ -16,6 +16,7 @@ export class Worktime {
 		if (!token)
 			return ServerResponse.json(res, {
 				success: false,
+				statusCode: 401,
 				message: 'user not found',
 				body: { info: [] },
 			});
@@ -50,6 +51,7 @@ export class Worktime {
 		if (!token)
 			return ServerResponse.json(res, {
 				success: false,
+				statusCode: 401,
 				message: 'user not found',
 				body: { info: null },
 			});
@@ -100,6 +102,7 @@ export class Worktime {
 		if (!token)
 			return ServerResponse.json(res, {
 				success: false,
+				statusCode: 401,
 				message: 'user not found',
 				body: { info: null },
 			});
@@ -159,6 +162,7 @@ export class Worktime {
 		if (!token)
 			return ServerResponse.json(res, {
 				success: false,
+				statusCode: 401,
 				message: 'user not found',
 				body: { info: null },
 			});
