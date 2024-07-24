@@ -11,7 +11,11 @@ export class Worktime {
 		//
 		const token = req?.headers?.token || '';
 
-		const [arrivalTimeFrom, arrivalTimeTo] = [req?.query?.arrivalTimeFrom, req?.query?.arrivalTimeTo];
+		const [arrivalTimeFrom, arrivalTimeTo, arrivalSort] = [
+			req?.query?.arrivalTimeFrom,
+			req?.query?.arrivalTimeTo,
+			req?.query?.arrivalSort,
+		];
 
 		if (!token)
 			return ServerResponse.json(res, {
@@ -28,6 +32,11 @@ export class Worktime {
 				if (arrivalTimeTo && item.arrivalTime > arrivalTimeTo) return false;
 				return true;
 			});
+
+			if (arrivalSort)
+				records.sort((a, b) =>
+					arrivalSort === 'acc' ? a.arrivalTime || 0 - b.arrivalTime || 0 : b.arrivalTime || 0 - a.arrivalTime || 0
+				);
 
 			if (err)
 				return ServerResponse.json(res, {
