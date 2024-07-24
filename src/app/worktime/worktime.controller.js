@@ -11,6 +11,8 @@ export class Worktime {
 		//
 		const token = req?.headers?.token || '';
 
+		const [arrivalTimeFrom, arrivalTimeTo] = [req?.query?.arrivalTimeFrom, req?.query?.arrivalTimeTo];
+
 		if (!token)
 			return ServerResponse.json(res, {
 				success: false,
@@ -19,7 +21,12 @@ export class Worktime {
 			});
 
 		FS.readFilePromise(__dirname_db).then(({ data, err }) => {
-			const records = (data ? JSON.parse(data) : []).filter((item) => item.user == token);
+			const records = (data ? JSON.parse(data) : []).filter((item) => {
+				if (item.user != token) return false;
+				if (arrivalTimeFrom && item.arrivalTime < arrivalTimeFrom) return false;
+				if (arrivalTimeTo && item.arrivalTime > arrivalTimeTo) return false;
+				return true;
+			});
 
 			if (err)
 				return ServerResponse.json(res, {
