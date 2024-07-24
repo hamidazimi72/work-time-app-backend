@@ -87,7 +87,61 @@ export class Worktime {
 	};
 
 	static edit = async (req, res, next) => {
-		return ServerResponse.json(res, { success: true, message: 'success', body: null });
+		//
+		const token = req?.headers?.token || '';
+
+		if (!token)
+			return ServerResponse.json(res, {
+				success: false,
+				message: 'user not found',
+				body: { info: null },
+			});
+
+		const [id, arrivalTime, departureTime, isVacation] = [
+			req?.body?.id,
+			req?.body?.arrivalTime,
+			req?.body?.departureTime,
+			req?.body?.isVacation,
+		];
+
+		if (!id || !arrivalTime || isVacation === undefined)
+			return ServerResponse.json(res, {
+				success: false,
+				message: 'parameters not valid',
+				body: { info: null },
+			});
+
+		const records = JSON.parse(FS.readFileSync(__dirname_db).data || '[]');
+		const recordIndex = records.findIndex((item) => item.id == id && item.user == token);
+
+		if (recordIndex < 0)
+			return ServerResponse.json(res, {
+				success: false,
+				message: 'item not found',
+				body: { info: null },
+			});
+
+		records[recordIndex] = {
+			...records[recordIndex],
+			arrivalTime: arrivalTime ?? null,
+			departureTime: departureTime ?? null,
+			isVacation: isVacation ?? null,
+		};
+
+		const { data, err } = FS.writeFileSync(__dirname_db, JSON.stringify(records));
+
+		if (err)
+			return ServerResponse.json(res, {
+				success: false,
+				message: 'can not edit',
+				body: { info: null },
+			});
+
+		return ServerResponse.json(res, {
+			success: true,
+			message: 'success',
+			body: { info: records?.[recordIndex] || null },
+		});
 	};
 
 	static delete = async (req, res, next) => {
