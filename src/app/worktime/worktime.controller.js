@@ -35,7 +35,7 @@ export class Worktime {
 
 			if (arrivalSort)
 				records.sort((a, b) =>
-					arrivalSort === 'acc' ? a.arrivalTime || 0 - b.arrivalTime || 0 : b.arrivalTime || 0 - a.arrivalTime || 0
+					arrivalSort === 'asc' ? a.arrivalTime || 0 - b.arrivalTime || 0 : b.arrivalTime || 0 - a.arrivalTime || 0
 				);
 
 			if (err)
