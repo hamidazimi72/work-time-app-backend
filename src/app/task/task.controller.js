@@ -1,17 +1,13 @@
 import { ServerResponse, FS } from '../../utils/index.js';
 
-import { __filename_db_worktime } from '../../db/config.js';
+import { __filename_db_task } from '../../db/config.js';
 
-export class Worktime {
+export class Task {
 	static search = async (req, res, next) => {
 		//
 		const token = req?.headers?.token || '';
 
-		const [arrivalTimeFrom, arrivalTimeTo, arrivalSort] = [
-			req?.query?.arrivalTimeFrom,
-			req?.query?.arrivalTimeTo,
-			req?.query?.arrivalSort,
-		];
+		const [isComplete] = [req?.query?.isComplete];
 
 		if (!token)
 			return ServerResponse.json(res, {
@@ -21,20 +17,12 @@ export class Worktime {
 				body: { info: [] },
 			});
 
-		FS.readFilePromise(__filename_db_worktime).then(({ data, err }) => {
+		FS.readFilePromise(__filename_db_task).then(({ data, err }) => {
 			const records = (data ? JSON.parse(data) : []).filter((item) => {
 				if (item.user != token) return false;
-				if (arrivalTimeFrom && item.arrivalTime < arrivalTimeFrom) return false;
-				if (arrivalTimeTo && item.arrivalTime > arrivalTimeTo) return false;
+				if (isComplete === undefined && item.isComplete !== isComplete) return false;
 				return true;
 			});
-
-			if (arrivalSort)
-				records.sort((a, b) =>
-					arrivalSort === 'asc'
-						? (a.arrivalTime || 0) - (b.arrivalTime || 0)
-						: (b.arrivalTime || 0) - (a.arrivalTime || 0)
-				);
 
 			if (err)
 				return ServerResponse.json(res, {
@@ -63,35 +51,25 @@ export class Worktime {
 				body: { info: null },
 			});
 
-		const [arrivalTime, departureTime, isVacation] = [
-			req?.body?.arrivalTime,
-			req?.body?.departureTime,
-			req?.body?.isVacation,
-		];
+		const [isComplete, title] = [req?.body?.isComplete, req?.body?.title];
 
-		if (!arrivalTime || isVacation === undefined)
+		if (isComplete === undefined || !title)
 			return ServerResponse.json(res, {
 				success: false,
 				message: 'parameters not valid',
 				body: { info: null },
 			});
 
-		const records = JSON.parse(FS.readFileSync(__filename_db_worktime).data || '[]');
+		const records = JSON.parse(FS.readFileSync(__filename_db_task).data || '[]');
 
 		const record = {
 			id: Date.now(),
 			user: token,
-			arrivalTime: arrivalTime ?? null,
-			departureTime: departureTime ?? null,
-			isVacation: isVacation ?? null,
+			isComplete: isComplete ?? null,
+			title: title ?? null,
 		};
 
-<<<<<<< HEAD
-		const { data, err } = FS.writeFileSync(__dirname_db, JSON.stringify([...records, record]));
-		console.log(err);
-=======
-		const { data, err } = FS.writeFileSync(__filename_db_worktime, JSON.stringify([...records, record]));
->>>>>>> origin/main
+		const { data, err } = FS.writeFileSync(__filename_db_task, JSON.stringify([...records, record]));
 
 		if (err)
 			return ServerResponse.json(res, {
@@ -119,21 +97,16 @@ export class Worktime {
 				body: { info: null },
 			});
 
-		const [id, arrivalTime, departureTime, isVacation] = [
-			req?.body?.id,
-			req?.body?.arrivalTime,
-			req?.body?.departureTime,
-			req?.body?.isVacation,
-		];
+		const [id, title, isComplete] = [req?.body?.id, req?.body?.isComplete, req?.body?.title];
 
-		if (!id || !arrivalTime || isVacation === undefined)
+		if (!id || !title || isComplete === undefined)
 			return ServerResponse.json(res, {
 				success: false,
 				message: 'parameters not valid',
 				body: { info: null },
 			});
 
-		const records = JSON.parse(FS.readFileSync(__filename_db_worktime).data || '[]');
+		const records = JSON.parse(FS.readFileSync(__filename_db_task).data || '[]');
 		const recordIndex = records.findIndex((item) => item.id == id && item.user == token);
 
 		if (recordIndex < 0)
@@ -145,12 +118,11 @@ export class Worktime {
 
 		records[recordIndex] = {
 			...records[recordIndex],
-			arrivalTime: arrivalTime ?? null,
-			departureTime: departureTime ?? null,
-			isVacation: isVacation ?? null,
+			isComplete: isComplete ?? null,
+			title: title ?? null,
 		};
 
-		const { data, err } = FS.writeFileSync(__filename_db_worktime, JSON.stringify(records));
+		const { data, err } = FS.writeFileSync(__filename_db_task, JSON.stringify(records));
 
 		if (err)
 			return ServerResponse.json(res, {
@@ -186,7 +158,7 @@ export class Worktime {
 				body: { info: null },
 			});
 
-		const records = JSON.parse(FS.readFileSync(__filename_db_worktime).data || '[]');
+		const records = JSON.parse(FS.readFileSync(__filename_db_task).data || '[]');
 
 		const recordIndex = records.findIndex((item) => item.id == id && item.user == token);
 
@@ -198,7 +170,7 @@ export class Worktime {
 			});
 
 		const { data, err } = FS.writeFileSync(
-			__filename_db_worktime,
+			__filename_db_task,
 			JSON.stringify(records.filter((item, i) => i !== recordIndex))
 		);
 
