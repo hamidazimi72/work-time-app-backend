@@ -29,7 +29,7 @@ export class User {
 			ServerResponse.json(res, {
 				success: true,
 				message: 'success',
-				body: { info: record },
+				body: { info: record, token: username },
 			});
 		});
 	};
@@ -85,7 +85,7 @@ export class User {
 		ServerResponse.json(res, {
 			success: true,
 			message: 'success',
-			body: { info: record },
+			body: { info: record, token: username },
 		});
 	};
 }
