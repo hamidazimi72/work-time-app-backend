@@ -1,10 +1,6 @@
-import path from 'path';
-import url from 'url';
-
 import { ServerResponse, FS } from '../../utils/index.js';
 
-const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
-const __dirname_db = path.resolve(__dirname, 'db.json');
+import { __filename_db_worktime } from '../../db/config.js';
 
 export class Worktime {
 	static search = async (req, res, next) => {
@@ -25,7 +21,7 @@ export class Worktime {
 				body: { info: [] },
 			});
 
-		FS.readFilePromise(__dirname_db).then(({ data, err }) => {
+		FS.readFilePromise(__filename_db_worktime).then(({ data, err }) => {
 			const records = (data ? JSON.parse(data) : []).filter((item) => {
 				if (item.user != token) return false;
 				if (arrivalTimeFrom && item.arrivalTime < arrivalTimeFrom) return false;
@@ -80,7 +76,7 @@ export class Worktime {
 				body: { info: null },
 			});
 
-		const records = JSON.parse(FS.readFileSync(__dirname_db).data || '[]');
+		const records = JSON.parse(FS.readFileSync(__filename_db_worktime).data || '[]');
 
 		const record = {
 			id: Date.now(),
@@ -90,7 +86,7 @@ export class Worktime {
 			isVacation: isVacation ?? null,
 		};
 
-		const { data, err } = FS.writeFileSync(__dirname_db, JSON.stringify([...records, record]));
+		const { data, err } = FS.writeFileSync(__filename_db_worktime, JSON.stringify([...records, record]));
 
 		if (err)
 			return ServerResponse.json(res, {
@@ -132,7 +128,7 @@ export class Worktime {
 				body: { info: null },
 			});
 
-		const records = JSON.parse(FS.readFileSync(__dirname_db).data || '[]');
+		const records = JSON.parse(FS.readFileSync(__filename_db_worktime).data || '[]');
 		const recordIndex = records.findIndex((item) => item.id == id && item.user == token);
 
 		if (recordIndex < 0)
@@ -149,7 +145,7 @@ export class Worktime {
 			isVacation: isVacation ?? null,
 		};
 
-		const { data, err } = FS.writeFileSync(__dirname_db, JSON.stringify(records));
+		const { data, err } = FS.writeFileSync(__filename_db_worktime, JSON.stringify(records));
 
 		if (err)
 			return ServerResponse.json(res, {
@@ -185,7 +181,7 @@ export class Worktime {
 				body: { info: null },
 			});
 
-		const records = JSON.parse(FS.readFileSync(__dirname_db).data || '[]');
+		const records = JSON.parse(FS.readFileSync(__filename_db_worktime).data || '[]');
 
 		const recordIndex = records.findIndex((item) => item.id == id && item.user == token);
 
@@ -197,7 +193,7 @@ export class Worktime {
 			});
 
 		const { data, err } = FS.writeFileSync(
-			__dirname_db,
+			__filename_db_worktime,
 			JSON.stringify(records.filter((item, i) => i !== recordIndex))
 		);
 
