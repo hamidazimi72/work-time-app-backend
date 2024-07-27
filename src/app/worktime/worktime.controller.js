@@ -86,12 +86,9 @@ export class Worktime {
 			isVacation: isVacation ?? null,
 		};
 
-<<<<<<< HEAD
-		const { data, err } = FS.writeFileSync(__dirname_db, JSON.stringify([...records, record]));
-		console.log(err);
-=======
+		// const { data, err } = FS.writeFileSync(__dirname_db, JSON.stringify([...records, record]));
+		// console.log(err);
 		const { data, err } = FS.writeFileSync(__filename_db_worktime, JSON.stringify([...records, record]));
->>>>>>> origin/main
 
 		if (err)
 			return ServerResponse.json(res, {
