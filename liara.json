@@ -2,7 +2,7 @@
 	"disks": [
 		{
 			"name": "apps",
-			"mountTo": "./apps"
+			"mountTo": "./db"
 		}
 	]
 }
