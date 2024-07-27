@@ -1,13 +1,13 @@
 import { ServerResponse, FS } from '../../utils/index.js';
 
-import { __filename_db_cost } from '../../db/config.js';
+import { __filename_db_task } from '../../db/config.js';
 
 export class Task {
 	static search = async (req, res, next) => {
 		//
 		const token = req?.headers?.token || '';
 
-		const [dateFrom, dateTo, dateSort] = [req?.query?.dateFrom, req?.query?.dateTo, req?.query?.dateSort];
+		const [isComplete] = [req?.query?.isComplete];
 
 		if (!token)
 			return ServerResponse.json(res, {
@@ -17,16 +17,12 @@ export class Task {
 				body: { info: [] },
 			});
 
-		FS.readFilePromise(__filename_db_cost).then(({ data, err }) => {
+		FS.readFilePromise(__filename_db_task).then(({ data, err }) => {
 			const records = (data ? JSON.parse(data) : []).filter((item) => {
 				if (item.user != token) return false;
-				if (dateFrom && item.date < dateFrom) return false;
-				if (dateTo && item.date > dateTo) return false;
+				if (isComplete === undefined && item.isComplete !== isComplete) return false;
 				return true;
 			});
-
-			if (dateSort)
-				records.sort((a, b) => (dateSort === 'asc' ? (a.date || 0) - (b.date || 0) : (b.date || 0) - (a.date || 0)));
 
 			if (err)
 				return ServerResponse.json(res, {
@@ -55,32 +51,25 @@ export class Task {
 				body: { info: null },
 			});
 
-		const [date, price, category, description] = [
-			req?.body?.date,
-			req?.body?.price,
-			req?.body?.category,
-			req?.body?.description,
-		];
+		const [isComplete, title] = [req?.body?.isComplete, req?.body?.title];
 
-		if (!date || !category || isNaN(price))
+		if (isComplete === undefined || !title)
 			return ServerResponse.json(res, {
 				success: false,
 				message: 'parameters not valid',
 				body: { info: null },
 			});
 
-		const records = JSON.parse(FS.readFileSync(__filename_db_cost).data || '[]');
+		const records = JSON.parse(FS.readFileSync(__filename_db_task).data || '[]');
 
 		const record = {
 			id: Date.now(),
 			user: token,
-			date: date ?? null,
-			price: price ?? null,
-			category: category ?? null,
-			description: description ?? null,
+			isComplete: isComplete ?? null,
+			title: title ?? null,
 		};
 
-		const { data, err } = FS.writeFileSync(__filename_db_cost, JSON.stringify([...records, record]));
+		const { data, err } = FS.writeFileSync(__filename_db_task, JSON.stringify([...records, record]));
 
 		if (err)
 			return ServerResponse.json(res, {
@@ -108,22 +97,16 @@ export class Task {
 				body: { info: null },
 			});
 
-		const [id, date, price, category, description] = [
-			req?.body?.id,
-			req?.body?.date,
-			req?.body?.price,
-			req?.body?.category,
-			req?.body?.description,
-		];
+		const [id, title, isComplete] = [req?.body?.id, req?.body?.isComplete, req?.body?.title];
 
-		if (!id || !date)
+		if (!id || !title || isComplete === undefined)
 			return ServerResponse.json(res, {
 				success: false,
 				message: 'parameters not valid',
 				body: { info: null },
 			});
 
-		const records = JSON.parse(FS.readFileSync(__filename_db_cost).data || '[]');
+		const records = JSON.parse(FS.readFileSync(__filename_db_task).data || '[]');
 		const recordIndex = records.findIndex((item) => item.id == id && item.user == token);
 
 		if (recordIndex < 0)
@@ -135,13 +118,11 @@ export class Task {
 
 		records[recordIndex] = {
 			...records[recordIndex],
-			date: date ?? null,
-			price: price ?? null,
-			category: category ?? null,
-			description: description ?? null,
+			isComplete: isComplete ?? null,
+			title: title ?? null,
 		};
 
-		const { data, err } = FS.writeFileSync(__filename_db_cost, JSON.stringify(records));
+		const { data, err } = FS.writeFileSync(__filename_db_task, JSON.stringify(records));
 
 		if (err)
 			return ServerResponse.json(res, {
@@ -177,7 +158,7 @@ export class Task {
 				body: { info: null },
 			});
 
-		const records = JSON.parse(FS.readFileSync(__filename_db_cost).data || '[]');
+		const records = JSON.parse(FS.readFileSync(__filename_db_task).data || '[]');
 
 		const recordIndex = records.findIndex((item) => item.id == id && item.user == token);
 
@@ -189,7 +170,7 @@ export class Task {
 			});
 
 		const { data, err } = FS.writeFileSync(
-			__filename_db_cost,
+			__filename_db_task,
 			JSON.stringify(records.filter((item, i) => i !== recordIndex))
 		);
 
