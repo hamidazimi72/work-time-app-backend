@@ -8,6 +8,8 @@ import express from 'express';
 import chalk from 'chalk';
 import 'dotenv/config';
 
+import cors from 'cors';
+
 //____________________* Module Imports *____________________//
 import {} from './utils/index.js';
 import { allowCross, logger } from './middlewares/index.js';
@@ -22,7 +24,7 @@ const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 const app = express();
 
 //____________________* use Middlewares *____________________//
-app.use(allowCross);
+app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'assets')));
