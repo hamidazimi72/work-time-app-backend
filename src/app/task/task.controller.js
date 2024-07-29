@@ -20,7 +20,8 @@ export class Task {
 		FS.readFilePromise(__filename_db_task).then(({ data, err }) => {
 			const records = (data ? JSON.parse(data) : []).filter((item) => {
 				if (item.user != token) return false;
-				if (isComplete === undefined && item.isComplete !== isComplete) return false;
+				if (isComplete === undefined) return true;
+				if (String(item.isComplete) !== isComplete) return false;
 				return true;
 			});
 
@@ -97,7 +98,7 @@ export class Task {
 				body: { info: null },
 			});
 
-		const [id, title, isComplete] = [req?.body?.id, req?.body?.isComplete, req?.body?.title];
+		const [id, isComplete, title] = [req?.body?.id, req?.body?.isComplete, req?.body?.title];
 
 		if (!id || !title || isComplete === undefined)
 			return ServerResponse.json(res, {
