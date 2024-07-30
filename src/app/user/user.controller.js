@@ -84,7 +84,7 @@ export class User {
 				body: { info: null },
 			});
 
-		const hashedPassword = bcrypt.hash(password, 10);
+		const hashedPassword = bcrypt.hashSync(password, 10);
 
 		const record = {
 			id: Date.now(),
