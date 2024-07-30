@@ -7,7 +7,12 @@ export class Task {
 		//
 		const username = req?.user?.username;
 
-		const [isComplete] = [req?.query?.isComplete];
+		const [isComplete, date, dateFrom, dateTo] = [
+			req?.query?.isComplete,
+			req?.query?.date,
+			req?.query?.dateFrom,
+			req?.query?.dateTo,
+		];
 
 		if (!username)
 			return ServerResponse.json(res, {
@@ -20,8 +25,11 @@ export class Task {
 		FS.readFilePromise(__filename_db_task).then(({ data, err }) => {
 			const records = (data ? JSON.parse(data) : []).filter((item) => {
 				if (item.user != username) return false;
-				if (isComplete === undefined) return true;
-				if (String(item.isComplete) !== isComplete) return false;
+				if (isComplete && isComplete !== String(item?.isComplete)) return false;
+				if (date && Math.abs(date - (item.date || 0)) >= 86400000) return false;
+				if (dateFrom && (item.date || 0) < dateFrom) return false;
+				if (dateTo && (item.date || 0) > dateTo) return false;
+
 				return true;
 			});
 
@@ -52,9 +60,9 @@ export class Task {
 				body: { info: null },
 			});
 
-		const [isComplete, title] = [req?.body?.isComplete, req?.body?.title];
+		const [isComplete, title, date] = [req?.body?.isComplete, req?.body?.title, req?.body?.date];
 
-		if (isComplete === undefined || !title)
+		if (isComplete === undefined || !title || !date)
 			return ServerResponse.json(res, {
 				success: false,
 				message: 'parameters not valid',
@@ -68,6 +76,7 @@ export class Task {
 			user: username,
 			isComplete: isComplete ?? null,
 			title: title ?? null,
+			date: date ?? null,
 		};
 
 		const { data, err } = FS.writeFileSync(__filename_db_task, JSON.stringify([...records, record]));
@@ -98,9 +107,9 @@ export class Task {
 				body: { info: null },
 			});
 
-		const [id, isComplete, title] = [req?.body?.id, req?.body?.isComplete, req?.body?.title];
+		const [id, isComplete, title, date] = [req?.body?.id, req?.body?.isComplete, req?.body?.title, req?.body?.date];
 
-		if (!id || !title || isComplete === undefined)
+		if (!id || !title || !date || isComplete === undefined)
 			return ServerResponse.json(res, {
 				success: false,
 				message: 'parameters not valid',
@@ -121,6 +130,7 @@ export class Task {
 			...records[recordIndex],
 			isComplete: isComplete ?? null,
 			title: title ?? null,
+			date: date ?? null,
 		};
 
 		const { data, err } = FS.writeFileSync(__filename_db_task, JSON.stringify(records));
