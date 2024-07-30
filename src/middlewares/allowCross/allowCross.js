@@ -4,7 +4,7 @@ export const allowCross = (req, res, next) => {
 	res.setHeader('Access-Control-Allow-Origin', '*');
 	res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
 	res.setHeader('Access-Control-Allow-headers', '*');
-	// res.setHeader('Access-Control-Allow-Credentials', 'true');
+	res.setHeader('Access-Control-Allow-Credentials', 'true');
 
 	next();
 };
