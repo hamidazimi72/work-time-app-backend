@@ -2,18 +2,20 @@ import { ServerResponse, FS } from '../../utils/index.js';
 
 import { __filename_db_worktime } from '../../db/config.js';
 
+const tokenKey = process.env.TOKEN_KEY || '';
+const registerKey = process.env.REGISTER_KEY || '';
+
 export class Worktime {
 	static search = async (req, res, next) => {
-		//
-		const token = req?.headers?.token || '';
-
 		const [arrivalTimeFrom, arrivalTimeTo, arrivalSort] = [
 			req?.query?.arrivalTimeFrom,
 			req?.query?.arrivalTimeTo,
 			req?.query?.arrivalSort,
 		];
 
-		if (!token)
+		const username = req?.user?.username;
+
+		if (!username)
 			return ServerResponse.json(res, {
 				success: false,
 				statusCode: 401,
@@ -23,7 +25,7 @@ export class Worktime {
 
 		FS.readFilePromise(__filename_db_worktime).then(({ data, err }) => {
 			const records = (data ? JSON.parse(data) : []).filter((item) => {
-				if (item.user != token) return false;
+				if (item.user != username) return false;
 				if (arrivalTimeFrom && item.arrivalTime < arrivalTimeFrom) return false;
 				if (arrivalTimeTo && item.arrivalTime > arrivalTimeTo) return false;
 				return true;
@@ -53,9 +55,9 @@ export class Worktime {
 
 	static save = async (req, res, next) => {
 		//
-		const token = req?.headers?.token || '';
+		const username = req?.user?.username;
 
-		if (!token)
+		if (!username)
 			return ServerResponse.json(res, {
 				success: false,
 				statusCode: 401,
@@ -80,7 +82,7 @@ export class Worktime {
 
 		const record = {
 			id: Date.now(),
-			user: token,
+			user: username,
 			arrivalTime: arrivalTime ?? null,
 			departureTime: departureTime ?? null,
 			isVacation: isVacation ?? null,
@@ -104,9 +106,9 @@ export class Worktime {
 
 	static edit = async (req, res, next) => {
 		//
-		const token = req?.headers?.token || '';
+		const username = req?.user?.username;
 
-		if (!token)
+		if (!username)
 			return ServerResponse.json(res, {
 				success: false,
 				statusCode: 401,
@@ -129,7 +131,7 @@ export class Worktime {
 			});
 
 		const records = JSON.parse(FS.readFileSync(__filename_db_worktime).data || '[]');
-		const recordIndex = records.findIndex((item) => item.id == id && item.user == token);
+		const recordIndex = records.findIndex((item) => item.id == id && item.user == username);
 
 		if (recordIndex < 0)
 			return ServerResponse.json(res, {
@@ -163,10 +165,10 @@ export class Worktime {
 
 	static delete = async (req, res, next) => {
 		//
-		const token = req?.headers?.token || '';
+		const username = req?.user?.username;
 		const id = req?.params?.id || '';
 
-		if (!token)
+		if (!username)
 			return ServerResponse.json(res, {
 				success: false,
 				statusCode: 401,
@@ -183,7 +185,7 @@ export class Worktime {
 
 		const records = JSON.parse(FS.readFileSync(__filename_db_worktime).data || '[]');
 
-		const recordIndex = records.findIndex((item) => item.id == id && item.user == token);
+		const recordIndex = records.findIndex((item) => item.id == id && item.user == username);
 
 		if (recordIndex < 0)
 			return ServerResponse.json(res, {
