@@ -57,7 +57,9 @@ export class User {
 		const password = req?.body?.password;
 		const securityCode = req?.body?.securityCode;
 
-		if (securityCode !== 118303)
+		const isValidRegisterKey = securityCode == registerKey;
+
+		if (!isValidRegisterKey)
 			return ServerResponse.json(res, {
 				success: false,
 				message: 'invalid code',
@@ -71,9 +73,9 @@ export class User {
 				body: { info: null },
 			});
 
-		const records = JSON.parse(FS.readFileSync(__filename_db_user)?.data || '{}');
+		const records = User.functions.readAllRecords() || {};
 
-		const findedRecord = records?.[username] || null;
+		const findedRecord = records[username] || null;
 
 		if (findedRecord)
 			return ServerResponse.json(res, {
@@ -81,6 +83,8 @@ export class User {
 				message: 'user is registered',
 				body: { info: null },
 			});
+
+		const hashedPassword = bcrypt.hash(password, 10);
 
 		const record = {
 			id: Date.now(),
