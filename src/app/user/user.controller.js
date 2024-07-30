@@ -1,6 +1,6 @@
-const bcrypt = require('bcrypt');
+import bcrypt from 'bcrypt';
 
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
 
 import { ServerResponse, FS } from '../../utils/index.js';
 
