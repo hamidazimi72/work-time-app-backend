@@ -1,36 +1,54 @@
+const bcrypt = require('bcrypt');
+
+const jwt = require('jsonwebtoken');
+
 import { ServerResponse, FS } from '../../utils/index.js';
 
 import { __filename_db_user } from '../../db/config.js';
 
+const tokenKey = process.env.TOKEN_KEY || '';
+const registerKey = process.env.REGISTER_KEY || '';
+
 export class User {
+	static functions = {
+		readAllRecords: () => {
+			const { data, err } = FS.readFileSync(__filename_db_user);
+			if (err) return null;
+			else return JSON.parse(data || '{}') || {};
+		},
+	};
+
 	static login = async (req, res, next) => {
 		const username = req?.params?.username || '';
 		const password = req?.body?.password;
 
-		FS.readFilePromise(__filename_db_user).then(({ data, err }) => {
-			const records = data ? JSON.parse(data) : {};
-			const record = records?.[username] || null;
+		const records = User.functions.readAllRecords() || {};
+		const user = records[username] || null;
 
-			if (!record)
-				return ServerResponse.json(res, {
-					success: false,
-					message: 'user not found',
-					body: { info: null },
-				});
-
-			if (record?.password != password)
-				return ServerResponse.json(res, {
-					success: false,
-					message: 'wrong password',
-					body: { info: null },
-				});
-
-			delete record['password'];
-			ServerResponse.json(res, {
-				success: true,
-				message: 'success',
-				body: { info: record, token: username },
+		if (!user)
+			return ServerResponse.json(res, {
+				success: false,
+				message: 'User Not Found',
+				body: { info: null },
 			});
+
+		const isValidPassword = bcrypt.compareSync(password, user.password);
+
+		if (!isValidPassword)
+			return ServerResponse.json(res, {
+				success: false,
+				message: 'Password Wrong',
+				body: { info: null },
+			});
+
+		const token = jwt.sign({ username: user.username }, tokenKey, { expiresIn: '24h' });
+
+		delete user['password'];
+
+		ServerResponse.json(res, {
+			success: true,
+			message: 'success',
+			body: { info: user, token: token },
 		});
 	};
 
@@ -72,7 +90,10 @@ export class User {
 			firstName: null,
 		};
 
-		const { data, err } = FS.writeFileSync(__filename_db_user, JSON.stringify({ ...records, [username]: record }));
+		const { data, err } = FS.writeFileSync(
+			__filename_db_user,
+			JSON.stringify({ ...records, [username]: record }, null, 2)
+		);
 
 		if (err)
 			return ServerResponse.json(res, {
