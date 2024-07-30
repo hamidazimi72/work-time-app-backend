@@ -5,11 +5,11 @@ import { __filename_db_task } from '../../db/config.js';
 export class Task {
 	static search = async (req, res, next) => {
 		//
-		const token = req?.headers?.token || '';
+		const username = req?.user?.username;
 
 		const [isComplete] = [req?.query?.isComplete];
 
-		if (!token)
+		if (!username)
 			return ServerResponse.json(res, {
 				success: false,
 				statusCode: 401,
@@ -19,7 +19,7 @@ export class Task {
 
 		FS.readFilePromise(__filename_db_task).then(({ data, err }) => {
 			const records = (data ? JSON.parse(data) : []).filter((item) => {
-				if (item.user != token) return false;
+				if (item.user != username) return false;
 				if (isComplete === undefined) return true;
 				if (String(item.isComplete) !== isComplete) return false;
 				return true;
@@ -42,9 +42,9 @@ export class Task {
 
 	static save = async (req, res, next) => {
 		//
-		const token = req?.headers?.token || '';
+		const username = req?.user?.username;
 
-		if (!token)
+		if (!username)
 			return ServerResponse.json(res, {
 				success: false,
 				statusCode: 401,
@@ -65,7 +65,7 @@ export class Task {
 
 		const record = {
 			id: Date.now(),
-			user: token,
+			user: username,
 			isComplete: isComplete ?? null,
 			title: title ?? null,
 		};
@@ -88,9 +88,9 @@ export class Task {
 
 	static edit = async (req, res, next) => {
 		//
-		const token = req?.headers?.token || '';
+		const username = req?.user?.username;
 
-		if (!token)
+		if (!username)
 			return ServerResponse.json(res, {
 				success: false,
 				statusCode: 401,
@@ -108,7 +108,7 @@ export class Task {
 			});
 
 		const records = JSON.parse(FS.readFileSync(__filename_db_task).data || '[]');
-		const recordIndex = records.findIndex((item) => item.id == id && item.user == token);
+		const recordIndex = records.findIndex((item) => item.id == id && item.user == username);
 
 		if (recordIndex < 0)
 			return ServerResponse.json(res, {
@@ -141,10 +141,10 @@ export class Task {
 
 	static delete = async (req, res, next) => {
 		//
-		const token = req?.headers?.token || '';
+		const username = req?.user?.username;
 		const id = req?.params?.id || '';
 
-		if (!token)
+		if (!username)
 			return ServerResponse.json(res, {
 				success: false,
 				statusCode: 401,
@@ -161,7 +161,7 @@ export class Task {
 
 		const records = JSON.parse(FS.readFileSync(__filename_db_task).data || '[]');
 
-		const recordIndex = records.findIndex((item) => item.id == id && item.user == token);
+		const recordIndex = records.findIndex((item) => item.id == id && item.user == username);
 
 		if (recordIndex < 0)
 			return ServerResponse.json(res, {

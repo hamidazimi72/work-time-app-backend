@@ -5,11 +5,11 @@ import { __filename_db_cost } from '../../db/config.js';
 export class Cost {
 	static search = async (req, res, next) => {
 		//
-		const token = req?.headers?.token || '';
+		const username = req?.user?.username;
 
 		const [dateFrom, dateTo, dateSort] = [req?.query?.dateFrom, req?.query?.dateTo, req?.query?.dateSort];
 
-		if (!token)
+		if (!username)
 			return ServerResponse.json(res, {
 				success: false,
 				statusCode: 401,
@@ -19,7 +19,7 @@ export class Cost {
 
 		FS.readFilePromise(__filename_db_cost).then(({ data, err }) => {
 			const records = (data ? JSON.parse(data) : []).filter((item) => {
-				if (item.user != token) return false;
+				if (item.user != username) return false;
 				if (dateFrom && item.date < dateFrom) return false;
 				if (dateTo && item.date > dateTo) return false;
 				return true;
@@ -45,9 +45,9 @@ export class Cost {
 
 	static save = async (req, res, next) => {
 		//
-		const token = req?.headers?.token || '';
+		const username = req?.user?.username;
 
-		if (!token)
+		if (!username)
 			return ServerResponse.json(res, {
 				success: false,
 				statusCode: 401,
@@ -73,7 +73,7 @@ export class Cost {
 
 		const record = {
 			id: Date.now(),
-			user: token,
+			user: username,
 			date: date ?? null,
 			price: price ?? null,
 			category: category ?? null,
@@ -98,9 +98,9 @@ export class Cost {
 
 	static edit = async (req, res, next) => {
 		//
-		const token = req?.headers?.token || '';
+		const username = req?.user?.username;
 
-		if (!token)
+		if (!username)
 			return ServerResponse.json(res, {
 				success: false,
 				statusCode: 401,
@@ -124,7 +124,7 @@ export class Cost {
 			});
 
 		const records = JSON.parse(FS.readFileSync(__filename_db_cost).data || '[]');
-		const recordIndex = records.findIndex((item) => item.id == id && item.user == token);
+		const recordIndex = records.findIndex((item) => item.id == id && item.user == username);
 
 		if (recordIndex < 0)
 			return ServerResponse.json(res, {
@@ -159,10 +159,10 @@ export class Cost {
 
 	static delete = async (req, res, next) => {
 		//
-		const token = req?.headers?.token || '';
+		const username = req?.user?.username;
 		const id = req?.params?.id || '';
 
-		if (!token)
+		if (!username)
 			return ServerResponse.json(res, {
 				success: false,
 				statusCode: 401,
@@ -179,7 +179,7 @@ export class Cost {
 
 		const records = JSON.parse(FS.readFileSync(__filename_db_cost).data || '[]');
 
-		const recordIndex = records.findIndex((item) => item.id == id && item.user == token);
+		const recordIndex = records.findIndex((item) => item.id == id && item.user == username);
 
 		if (recordIndex < 0)
 			return ServerResponse.json(res, {
