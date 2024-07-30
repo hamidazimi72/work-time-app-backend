@@ -106,7 +106,7 @@ export class User {
 				body: { info: null },
 			});
 
-		const token = jwt.sign({ username: user.username }, tokenKey, { expiresIn: '24h' });
+		const token = jwt.sign({ username: username }, tokenKey, { expiresIn: '24h' });
 
 		delete record['password'];
 		ServerResponse.json(res, {
