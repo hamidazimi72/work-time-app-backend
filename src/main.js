@@ -25,6 +25,7 @@ const app = express();
 
 //____________________* use Middlewares *____________________//
 app.use(cors());
+// app.use(allowCross());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'assets')));
