@@ -88,8 +88,8 @@ export class User {
 
 		const record = {
 			id: Date.now(),
-			username: username ?? null,
-			password: password ?? null,
+			username: username,
+			password: hashedPassword,
 			lastName: null,
 			firstName: null,
 		};
