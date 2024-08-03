@@ -1,3 +1,5 @@
+import { Op } from 'sequelize';
+
 import { ServerResponse, Validation } from '../../utils/index.js';
 
 import { Tasks_Model } from './tasks.model.js';
@@ -6,6 +8,7 @@ export class Tasks_Controller {
 	//---------------* SEARCH *---------------//
 	static search = async (req, res, next) => {
 		const { tokenData, query, params, body } = req || {};
+		const { dateFrom, dateTo, isComplete } = query;
 
 		const access = tokenData?.id;
 		const validParams = true;
@@ -13,9 +16,14 @@ export class Tasks_Controller {
 		try {
 			if (!ServerResponse.checkValidation(res, { access, validParams })) return;
 
+			console.log({ tokenData });
+
 			const Tasks = await Tasks_Model.findAll({
 				where: {
 					userId: tokenData?.id,
+					// ...(dateFrom && { [Op.gt]: parseInt(dateFrom, 10) || 0 }),
+					// ...(dateTo && { [Op.lt]: parseInt(dateTo, 10) || 0 }),
+					...(isComplete !== undefined && { isComplete: isComplete === 'true' ? true : false }),
 				},
 			});
 
@@ -82,7 +90,7 @@ export class Tasks_Controller {
 			const Task = await Tasks_Model.create({
 				title: title,
 				date: date,
-				isComplete: Boolean(isComplete),
+				isComplete: !isComplete || isComplete === 'false' ? false : true,
 				userId: tokenData?.id,
 			});
 
