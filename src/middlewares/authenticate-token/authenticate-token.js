@@ -9,7 +9,7 @@ export const authenticateToken = (req, res, next) => {
 	const tokenKey = process.env.TOKEN_KEY || '';
 
 	if (!token)
-		return ServerResponse(res, {
+		return ServerResponse.json(res, {
 			success: false,
 			statusCode: 401,
 			message: 'Unauthorized',
@@ -17,7 +17,7 @@ export const authenticateToken = (req, res, next) => {
 
 	jwt.verify(token, tokenKey, (err, user) => {
 		if (err) {
-			return ServerResponse(res, {
+			return ServerResponse.json(res, {
 				success: false,
 				statusCode: 401,
 				message: 'Unauthorized',
