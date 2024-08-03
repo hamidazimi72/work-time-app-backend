@@ -1,6 +1,5 @@
 node_modules
 package-lock.json
 
-# src/db/user.json
-# src/db/worktime.json
-src/db/*.json
+
+src/database/*.json
