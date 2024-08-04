@@ -135,7 +135,7 @@ export class Tasks_Controller {
 				});
 
 			if (title) Task.setDataValue('title', title);
-			if (date) Task.setDataValue('date', new date.toISOString());
+			if (date) Task.setDataValue('date', new Date(date).toISOString());
 			if (isComplete !== undefined)
 				Task.setDataValue('isComplete', isComplete === 'false' ? false : Boolean(isComplete));
 
