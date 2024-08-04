@@ -16,13 +16,15 @@ export class Tasks_Controller {
 		try {
 			if (!ServerResponse.checkValidation(res, { access, validParams })) return;
 
-			console.log({ tokenData });
-
 			const Tasks = await Tasks_Model.findAll({
 				where: {
 					userId: tokenData?.id,
-					// ...(dateFrom && { [Op.gt]: parseInt(dateFrom, 10) || 0 }),
-					// ...(dateTo && { [Op.lt]: parseInt(dateTo, 10) || 0 }),
+					...((dateFrom || dateTo) && {
+						date: {
+							...(dateFrom && { [Op.gte]: new Date(dateFrom) }),
+							...(dateTo && { [Op.lte]: new Date(dateTo) }),
+						},
+					}),
 					...(isComplete !== undefined && { isComplete: isComplete === 'true' ? true : false }),
 				},
 			});
@@ -89,7 +91,7 @@ export class Tasks_Controller {
 
 			const Task = await Tasks_Model.create({
 				title: title,
-				date: date,
+				date: new Date(date).toISOString(),
 				isComplete: !isComplete || isComplete === 'false' ? false : true,
 				userId: tokenData?.id,
 			});
@@ -133,8 +135,9 @@ export class Tasks_Controller {
 				});
 
 			if (title) Task.setDataValue('title', title);
-			if (date) Task.setDataValue('date', date);
-			if (isComplete) Task.setDataValue('isComplete', Boolean(isComplete));
+			if (date) Task.setDataValue('date', new date.toISOString());
+			if (isComplete !== undefined)
+				Task.setDataValue('isComplete', isComplete === 'false' ? false : Boolean(isComplete));
 
 			await Task.save();
 

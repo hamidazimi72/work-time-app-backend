@@ -15,7 +15,7 @@ export const Tasks_Model = sequelize.define(
 			allowNull: false,
 		},
 		date: {
-			type: DataTypes.INTEGER,
+			type: DataTypes.DATE,
 			allowNull: false,
 		},
 		isComplete: {
