@@ -49,4 +49,12 @@ Users_Model.associate = (models) => {
 		foreignKey: 'userId',
 		as: 'tasks',
 	});
+	Users_Model.hasMany(models.Worktime, {
+		foreignKey: 'userId',
+		as: 'worktimes',
+	});
+	Users_Model.hasMany(models.Cost, {
+		foreignKey: 'userId',
+		as: 'costs',
+	});
 };
