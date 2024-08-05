@@ -76,6 +76,9 @@ export class Validation {
 	};
 
 	static regex = {
+		userId: /^\d{1,20}$/,
+		username: /^.{3,}$/,
+		password: /^.{3,}$/,
 		singleNumber: /^\d{1,}$/,
 		floatNumber: /^[0-9]{1,}[.]{0,1}[0-9]{0,}$/,
 	};
