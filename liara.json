@@ -1,8 +1,3 @@
 {
-	"disks": [
-		{
-			"name": "apps",
-			"mountTo": "./src/db"
-		}
-	]
+	"disks": []
 }
